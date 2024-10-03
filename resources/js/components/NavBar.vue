@@ -14,11 +14,16 @@ import { mapActions } from "vuex";
 
 export default {
     methods: {
-        ...mapActions("auth", ["logout"]),
+        ...mapActions("user", ["logout"]),
 
-        handleLogout() {
-            this.logout();
-            console.log("Logout clicked");
+        async handleLogout() {
+            try {
+                await this.logout();
+                this.$router.push("/login");
+            } catch (error) {
+                console.error("Logout failed:", error);
+                alert("Logout failed. Please try again.");
+            }
         },
     },
 };

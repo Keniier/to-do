@@ -16,7 +16,7 @@ const getters = {
 const actions = {
     async fetchTasks({ commit }) {
         try {
-            const response = await axios.get("/api/tasks");            
+            const response = await axios.get("/api/tasks");
             commit("setTasks", response.data);
         } catch (error) {
             handleError(error);
@@ -44,7 +44,7 @@ const actions = {
             handleError(error);
         }
     },
-    
+
 
     async deleteTask({ commit }, id) {
         try {
@@ -83,7 +83,23 @@ const mutations = {
     removeTask: (state, id) => {
         state.tasks = state.tasks.filter(task => task.id !== id);
     },
+    sortTasks: (state, sortKey) => {
+        state.tasks.sort((a, b) => {
+            const aDate = a[sortKey] ? new Date(a[sortKey]) : null;
+            const bDate = b[sortKey] ? new Date(b[sortKey]) : null;
+
+            // Manejo de fechas nulas
+            if (aDate === null && bDate === null) return 0; // Ambas fechas son nulas
+            if (aDate === null) return 1; // Si aDate es nulo, se coloca al final
+            if (bDate === null) return -1; // Si bDate es nulo, se coloca al final
+
+            // Orden ascendente por fechas (más viejo primero)
+            return aDate - bDate;
+        });
+    },
 };
+
+
 
 export default {
     namespaced: true,

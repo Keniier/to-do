@@ -14,14 +14,27 @@
                 <v-row>
                     <v-col cols="12">
                         <v-card>
-                            <v-toolbar color="blue">
+                            <v-toolbar color="blue" class="d-flex align-center">
                                 <v-btn icon="mdi-list-box"></v-btn>
-
-                                <v-toolbar-title>Lista de Tareas</v-toolbar-title>
-
+                                <div>
+                                    <v-toolbar-title>Lista de Tareas</v-toolbar-title>
+                                    <span class="instruction-text">
+                                        Haz clic en una tarea para ver más detalles.
+                                    </span>
+                                </div>
                                 <v-spacer></v-spacer>
-
-                                <v-btn icon="mdi-magnify"></v-btn>
+                                <v-select
+                                    v-model="sortKey"
+                                    @update:modelValue="updateSort"
+                                    :items="sortOptions"
+                                    label="Ordenar por"
+                                    solo
+                                    dense
+                                    item-title="text"
+                                    item-value="value"
+                                    class="mt-5"
+                                    style="min-width: 200px"
+                                />
                             </v-toolbar>
                             <task-list
                                 :tasks="tasks"
@@ -32,7 +45,6 @@
                         </v-card>
                     </v-col>
                 </v-row>
-
                 <task-form-modal
                     :dialog="dialog"
                     :task="currentTask"
@@ -63,6 +75,11 @@ export default {
             dialog: false,
             currentTask: {},
             isEdit: false,
+            sortKey: "created_at", // Clave de orden predeterminada
+            sortOptions: [
+                { text: "Fecha de Creación", value: "created_at" },
+                { text: "Fecha de Vencimiento", value: "due_date" },
+            ],
         };
     },
     computed: {
@@ -74,6 +91,11 @@ export default {
         this.$store.dispatch("tasks/fetchTasks");
     },
     methods: {
+        updateSort(value) {
+            this.sortKey = value;
+            console.log(`Ordenado por: ${this.sortKey}`);
+            this.$store.commit("tasks/sortTasks", this.sortKey);
+        },
         openDialog() {
             this.currentTask = {
                 title: "",
@@ -97,7 +119,6 @@ export default {
         },
         saveTask(task) {
             const taskId = task.get("id");
-
             if (this.isEdit) {
                 this.$store.dispatch("tasks/updateTask", { id: taskId, taskData: task });
             } else {
@@ -113,5 +134,14 @@ export default {
 </script>
 
 <style scoped>
-/* Estilos personalizados (si es necesario) */
+.sort-select {
+    min-width: 200px;
+}
+
+.instruction-text {
+    font-size: 14px;
+    color: rgb(224, 224, 224);
+    margin-top: -50px;
+    margin-bottom: 5px;
+}
 </style>
